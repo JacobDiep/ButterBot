@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"name": "SSH FS - niu",
+			"uri": "ssh://niu/home/hopper/z1925811"
+		}
+	],
+	"settings": {
+		"vscode-pets.petType": "totoro",
+		"vscode-pets.petColor": "gray",
+		"vscode-pets.theme": "forest",
+		"vscode-pets.position": "explorer"
+	}
+}
