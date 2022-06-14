@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+var fs = require('fs');
 
 require("dotenv").config();
 const client = new Discord.Client({
@@ -27,10 +28,31 @@ client.on("messageCreate",(message)=>{
         .substring(startOfCom.length)
         .split(/\s+/);
     }
+    else
+    {
+        var messagez = new Array();
+        messagez = message.content.split(/\s+/);
+        endLen=messagez.length;
+        for(let position in messagez){
+            if(messagez[position].toLowerCase()=="butter"){
+               var tempCount = fs.readFileSync('buttercount','utf8');
+               tempCount++;
+               tempCount=tempCount.toString();
+               fs.writeFileSync('buttercount',tempCount);
+               if(position==(endLen-1)){
+                    var Count= fs.readFileSync('buttercount','utf8');
+                    message.channel.send("Butter has been sent "+ Count +" times.");
+                }
+
+            }
+                
+        }
+    }
     console.log(`${message.createdAt} ${message.author.username}:${message.content}`);
+    
 })
 
-client.on("messageDelete",async message=>{
+client.on("messageDelete", async message=>{
     let logs = await message.guild.fetchAuditLogs({ type: "MESSAGE_DELETE"});
     let entry = logs.entries.first();
     console.log(`${entry.executor.username} has deleted the message "${message.content}" which was sent by ${message.author.username} in ${message.channel.name}`);
