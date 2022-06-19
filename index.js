@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 var fs = require('fs');
 
+
 require("dotenv").config();
 const client = new Discord.Client({
     intents: [
@@ -10,6 +11,13 @@ const client = new Discord.Client({
 
     ]
 });
+
+function addToCount(messagez){
+    var tempCount = fs.readFileSync('buttercount','utf8');
+    tempCount++;
+    tempCount=tempCount.toString();
+    fs.writeFileSync('buttercount',tempCount);
+}
 
 const startOfCom = "!!";
 
@@ -28,28 +36,28 @@ client.on("messageCreate",(message)=>{
         .substring(startOfCom.length)
         .split(/\s+/);
     }
-    else
-    {
+    else{
         var messagez = new Array();
         messagez = message.content.split(/\s+/);
         endLen=messagez.length;
         for(let position in messagez){
             if(messagez[position].toLowerCase()=="butter"){
-               var tempCount = fs.readFileSync('buttercount','utf8');
-               tempCount++;
-               tempCount=tempCount.toString();
-               fs.writeFileSync('buttercount',tempCount);
-               if(position==(endLen-1)){
+                addToCount(messagez);
+                if(position==(endLen-1)){
                     var Count= fs.readFileSync('buttercount','utf8');
                     message.channel.send("Butter has been sent "+ Count +" times.");
                 }
-
             }
-                
+            else if(messagez[position].includes("🧈"||messagez[position]=="🧈")){
+                addToCount(messagez);
+                if(position==(endLen-1)){
+                    var Count= fs.readFileSync('buttercount','utf8');
+                    message.channel.send("Butter has been sent "+ Count +" times.");
+                }
+            }
         }
     }
     console.log(`${message.createdAt} ${message.author.username}:${message.content}`);
-    
 })
 
 client.on("messageDelete", async message=>{
