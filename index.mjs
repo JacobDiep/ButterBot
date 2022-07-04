@@ -40,6 +40,7 @@ async function findMMR(version, region, name, tag, message){
     }
 }
 
+//filtered mmr
 async function findFilMMR(version, region, name, tag, filter, message){
     const mmrData = await VAPI.getMMR({version, region, name, tag, filter});
     const accountData = await VAPI.getAccount({name, tag});
@@ -63,7 +64,6 @@ async function findFilMMR(version, region, name, tag, filter, message){
 
 
 const startOfCom = "!!";
-
 //ready is the event we are listening for
 //() => is the function that we call to handle the event. In this case we are making the function itself.
 client.on("ready", () => {
@@ -112,6 +112,7 @@ client.on("messageCreate",(message)=>{
         }
     }
     else{
+        //butter count checker
         let messagez = new Array();
         messagez = message.content.split(/\s+/);
         let endLen=messagez.length;
@@ -135,6 +136,7 @@ client.on("messageCreate",(message)=>{
     console.log(`${message.createdAt} ${message.author.username}:${message.content}`);
 })
 
+//buggy audit log for message delete
 client.on("messageDelete", async message=>{
     let logs = await message.guild.fetchAuditLogs({ type: "MESSAGE_DELETE"});
     let entry = logs.entries.first();
