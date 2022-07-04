@@ -63,7 +63,7 @@ client.on("messageCreate",(message)=>{
     else{
         let messagez = new Array();
         messagez = message.content.split(/\s+/);
-        endLen=messagez.length;
+        let endLen=messagez.length;
         for(let position in messagez){
             if(messagez[position].toLowerCase()=="butter"){
                 addToCount(messagez);
