@@ -16,6 +16,11 @@ const client = new Client({
     ]
 });
 
+const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,      
+    maximumFractionDigits: 2,
+ });
+
 function addToCount(messagez){
     var tempCount = fs.readFileSync('buttercount','utf8');
     tempCount++;
@@ -46,7 +51,7 @@ async function findFilMMR(version, region, name, tag, filter, message){
     const accountData = await VAPI.getAccount({name, tag});
     if(mmrData.status===200){
         let pWin = mmrData.data.wins / mmrData.data.number_of_games;
-        pWin = pWin.toFixed(2) * 100;
+        pWin = (pWin* 100);
         message.channel.send( {files: [`${accountData.data.card.wide}`]});
         message.channel.send(dedent`>>> ${filter} Ranked Information:
         Player:             ${name}#${tag}
@@ -81,6 +86,7 @@ client.on("messageCreate",(message)=>{
         .substring(startOfCom.length)
         .split(/\s+/);
 
+    
     //If the message is only the prefix, send error message
         if(message.length===undefined && message.content.length===2){
             message.channel.send(">>> Please enter a valid command. Use !!help to see a list of commands.");
@@ -91,24 +97,37 @@ client.on("messageCreate",(message)=>{
             message.channel.send(dedent`>>> ** Command Prefix: !! **
             List of commands:
             help: Lists all commands and basic info on bot.
-            check: Displays player name, level, current rank and current rr of a player. Format: !!check name tag
+            check: Displays player name, level, current rank and current rr of a player. Format: !!check name #tag OR !!check name #tag e1a1,e1a2,etc..
             `);
         }
     //Rank Checker
         if(cmdName== "check"){
-            if(args.length > 3)
-                return message.reply('>>> Please use the format: name tag (optional:e4a1,e4a2,e4a3...).');
-            else if(args.length===3){
+            let hash = "#";
+            let name="";
+            let tag="";
+            let counter=0;
+            for(let x in args){
+                if(args[x].startsWith(hash)){
+                    tag = args[x].trim().substring(hash.length);
+                    counter++;
+                    break;
+                }
+                else{
+                name = name +" "+args[x];
+                counter++;
+                }
+            }
+            if(args[counter]){
                 let version = "v2";
-                let filter = args[2];
-                findFilMMR(version,"na",args[0],args[1],args[2],message);
-                
+                let filter = args[counter];
+                findFilMMR(version,"na",name,tag,filter,message);
             }
             else{
                 let version = "v1";
                 let region = "na";
-                findMMR(version, region, args[0], args[1], message);
+                findMMR(version, region, name, tag, message);
             }
+            
         }
     }
     else{
