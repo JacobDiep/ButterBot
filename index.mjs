@@ -11,7 +11,8 @@ const client = new Client({
     intents: [
         "GUILDS",
         "GUILD_MESSAGES",
-        "GUILD_MEMBERS"
+        "GUILD_MEMBERS",
+        "GUILD_MESSAGE_REACTIONS"
     ]
 });
 
@@ -20,6 +21,44 @@ function addToCount(messagez){
     tempCount++;
     tempCount=tempCount.toString();
     fs.writeFileSync('buttercount',tempCount);
+}
+
+async function findMMR(version, region, name, tag, message){
+    const mmrData = await VAPI.getMMR({ version, region, name, tag });
+    const accountData = await VAPI.getAccount({name,tag});
+    if(mmrData.status===200){
+        message.channel.send( {files: [`${accountData.data.card.wide}`]});
+        message.channel.send(dedent`>>> Current Ranked Information:
+        Player: ${name}#${tag}
+        Level: ${accountData.data.account_level}
+        Current rank: ${mmrData.data.currenttierpatched}
+        Current rr:${mmrData.data.ranking_in_tier}`
+        );
+    }
+    else{
+        message.channel.send(">>> ERROR: Player does not exist or you did not enter the correct name or tag.")
+    }
+}
+
+async function findFilMMR(version, region, name, tag, filter, message){
+    const mmrData = await VAPI.getMMR({version, region, name, tag, filter});
+    const accountData = await VAPI.getAccount({name, tag});
+    if(mmrData.status===200){
+        let pWin = mmrData.data.wins / mmrData.data.number_of_games;
+        pWin = pWin.toFixed(2) * 100;
+        message.channel.send( {files: [`${accountData.data.card.wide}`]});
+        message.channel.send(dedent`>>> ${filter} Ranked Information:
+        Player:             ${name}#${tag}
+        Highest rank:         ${mmrData.data.final_rank_patched}
+        Number of games:    ${mmrData.data.number_of_games}
+        Number of wins:     ${mmrData.data.wins}
+        Win %:              ${pWin}
+        `
+        );
+    }
+    else{
+        message.channel.send(">>> ERROR: Player does not exist or you did not enter the correct name, tag or episode/act.")
+    }
 }
 
 
@@ -32,14 +71,22 @@ client.on("ready", () => {
 });
 
 client.on("messageCreate",(message)=>{
+    //If message is created by bot, return
     if(message.author.bot) return;
+
+    //Parsing the message sent
     if(message.content.startsWith(startOfCom)){
         const [cmdName, ...args] = message.content
         .trim()
         .substring(startOfCom.length)
         .split(/\s+/);
-        if(message.length===undefined)
+
+    //If the message is only the prefix, send error message
+        if(message.length===undefined && message.content.length===2){
             message.channel.send(">>> Please enter a valid command. Use !!help to see a list of commands.");
+        }
+
+    //If the command is help
         if(cmdName==="help"){
             message.channel.send(dedent`>>> ** Command Prefix: !! **
             List of commands:
@@ -47,29 +94,20 @@ client.on("messageCreate",(message)=>{
             check: Displays player name, level, current rank and current rr of a player. Format: !!check name tag
             `);
         }
+    //Rank Checker
         if(cmdName== "check"){
-            if(args.length != 2)
-                return message.reply('>>> Please provide name and tag of player.');
+            if(args.length > 3)
+                return message.reply('>>> Please use the format: name tag (optional:e4a1,e4a2,e4a3...).');
+            else if(args.length===3){
+                let version = "v2";
+                let filter = args[2];
+                findFilMMR(version,"na",args[0],args[1],args[2],message);
+                
+            }
             else{
                 let version = "v1";
                 let region = "na";
-                async function findMMR(version, region, name, tag){
-                    const mmrData = await VAPI.getMMR({ version, region, name, tag });
-                    const accountData = await VAPI.getAccount({name,tag});
-                    if(mmrData.status===200){
-                        message.channel.send( {files: [`${accountData.data.card.wide}`]});
-                        message.channel.send(dedent`>>> Current Ranked Information:
-                        Player: ${name}#${tag}
-                        Level: ${accountData.data.account_level}
-                        Current rank: ${mmrData.data.currenttierpatched}
-                        Current rr:${mmrData.data.ranking_in_tier}`
-                        );
-                    }
-                    else{
-                        message.channel.send(">>> ERROR: Player does not exist or you did not enter the correct name or tag.")
-                    }
-                }
-                findMMR(version, region, args[0], args[1]);
+                findMMR(version, region, args[0], args[1], message);
             }
         }
     }
