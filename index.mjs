@@ -53,17 +53,29 @@ async function findFilMMR(version, region, name, tag, filter, message){
         let pWin = mmrData.data.wins / mmrData.data.number_of_games;
         pWin = (pWin* 100);
         message.channel.send( {files: [`${accountData.data.card.wide}`]});
-        message.channel.send(dedent`>>> ${filter} Ranked Information:
-        Player:             ${name}#${tag}
-        Highest rank:         ${mmrData.data.final_rank_patched}
-        Number of games:    ${mmrData.data.number_of_games}
-        Number of wins:     ${mmrData.data.wins}
-        Win %:              ${pWin}
-        `
-        );
+        if(filter==="e5a1"){
+            message.channel.send(dedent`>>> ${filter} Ranked Information:
+            Player:             ${name}#${tag}
+            Current Rank:         ${mmrData.data.final_rank_patched}
+            Number of games:    ${mmrData.data.number_of_games}
+            Number of wins:     ${mmrData.data.wins}
+            Win %:              ${pWin}
+            `
+            );
+        }
+        else{
+            message.channel.send(dedent`>>> ${filter} Ranked Information:
+            Player:             ${name}#${tag}
+            Final Rank:         ${mmrData.data.final_rank_patched}
+            Number of games:    ${mmrData.data.number_of_games}
+            Number of wins:     ${mmrData.data.wins}
+            Win %:              ${pWin}
+            `
+            );
+        }
     }
     else{
-        message.channel.send(">>> ERROR: Player does not exist or you did not enter the correct name, tag or episode/act.")
+        message.channel.send(">>> ERROR: Player does not exist or you did not enter the correct name, tag, episode/act, or player has not been placed yet.")
     }
 }
 
