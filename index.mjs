@@ -113,7 +113,7 @@ client.on("messageCreate",(message)=>{
             `);
         }
     //Rank Checker
-        if(cmdName== "check"){
+        if(cmdName.toLowerCase() === "check"){
             let hash = "#";
             let name="";
             let tag="";
