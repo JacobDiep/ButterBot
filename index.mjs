@@ -4,6 +4,7 @@ import dedent from 'dedent-js';
 import {Client, Intents, MessageEmbed} from 'discord.js';
 import {HenrikDevValorantAPI} from 'unofficial-valorant-api';
 import mongoose from 'mongoose';
+import crosshairs from './schemas.mjs';
 
 
 
@@ -157,19 +158,19 @@ client.on("messageCreate",async (message)=>{
             
         }
         else if(cmdName.toLowerCase() === "ch"){
-            /*if(args.length() != 2){
+            if(args.length != 2){
                 message.channel.send(">>> Please use the \"ch\" in the following format: !!ch (Name of crosshair) (Valorant code of crosshair) (picture of crosshair)");
             }
             else{
+                const att = message.attachments.first();
                 const ch = {
-                    user: message.author,
+                    user: message.author.username,
                     name: args[0],
                     code: args[1],
-                    imageURL: message.attachments.url
+                    imageURL: att.url
                 }
-                await new chSchema(ch).save();
+                await new crosshairs(ch).save();
             }
-            */
         }
     }
     else{
@@ -195,7 +196,6 @@ client.on("messageCreate",async (message)=>{
         }
     }
     console.log(`${message.createdAt} ${message.author.username}:${message.content}`);
-    console.log(message.attachmnets.url);
 })
 
 //buggy audit log for message delete
