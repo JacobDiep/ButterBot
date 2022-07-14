@@ -3,7 +3,11 @@ import fs from 'fs';
 import dedent from 'dedent-js';
 import {Client, Intents, MessageEmbed} from 'discord.js';
 import {HenrikDevValorantAPI} from 'unofficial-valorant-api';
-import { start } from 'repl';
+import mongoose from 'mongoose';
+
+
+
+
 const VAPI = new HenrikDevValorantAPI();
 
 
@@ -83,11 +87,22 @@ async function findFilMMR(version, region, name, tag, filter, message){
 const startOfCom = "!!";
 //ready is the event we are listening for
 //() => is the function that we call to handle the event. In this case we are making the function itself.
-client.on("ready", () => {
+client.on("ready", async () => {
+    await mongoose.connect (process.env.mongooseURI, {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+        keepAlive: true,
+    })
+    .then((m)=>{
+        console.log("Connected to DB.");
+    })
+    .catch(err => {
+        console.log(err);
+    })
     console.log(`${client.user.username} has logged in!`);
 });
 
-client.on("messageCreate",(message)=>{
+client.on("messageCreate",async (message)=>{
     //If message is created by bot, return
     if(message.author.bot) return;
 
@@ -105,7 +120,7 @@ client.on("messageCreate",(message)=>{
         }
 
     //If the command is help
-        if(cmdName==="help"){
+        if(cmdName.toLowerCase()==="help"){
             message.channel.send(dedent`>>> ** Command Prefix: !! **
             List of commands:
             help: Lists all commands and basic info on bot.
@@ -113,7 +128,7 @@ client.on("messageCreate",(message)=>{
             `);
         }
     //Rank Checker
-        if(cmdName.toLowerCase() === "check"){
+        else if(cmdName.toLowerCase() === "check"){
             let hash = "#";
             let name="";
             let tag="";
@@ -141,6 +156,21 @@ client.on("messageCreate",(message)=>{
             }
             
         }
+        else if(cmdName.toLowerCase() === "ch"){
+            /*if(args.length() != 2){
+                message.channel.send(">>> Please use the \"ch\" in the following format: !!ch (Name of crosshair) (Valorant code of crosshair) (picture of crosshair)");
+            }
+            else{
+                const ch = {
+                    user: message.author,
+                    name: args[0],
+                    code: args[1],
+                    imageURL: message.attachments.url
+                }
+                await new chSchema(ch).save();
+            }
+            */
+        }
     }
     else{
         //butter count checker
@@ -165,6 +195,7 @@ client.on("messageCreate",(message)=>{
         }
     }
     console.log(`${message.createdAt} ${message.author.username}:${message.content}`);
+    console.log(message.attachmnets.url);
 })
 
 //buggy audit log for message delete
@@ -173,4 +204,5 @@ client.on("messageDelete", async message=>{
     let entry = logs.entries.first();
     console.log(`${entry.executor.username} has deleted the message "${message.content}" which was sent by ${message.author.username} in ${message.channel.name}`);
 })
+
 client.login(process.env.TOKEN);
