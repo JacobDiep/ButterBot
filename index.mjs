@@ -6,9 +6,6 @@ import {HenrikDevValorantAPI} from 'unofficial-valorant-api';
 import mongoose from 'mongoose';
 import crosshairs from './schemas.mjs';
 
-
-
-
 const VAPI = new HenrikDevValorantAPI();
 
 
@@ -27,7 +24,7 @@ const formatter = new Intl.NumberFormat('en-US', {
  });
 
 function addToCount(messagez){
-    var tempCount = fs.readFileSync('buttercount','utf8');
+    let tempCount = fs.readFileSync('buttercount','utf8');
     tempCount++;
     tempCount=tempCount.toString();
     fs.writeFileSync('buttercount',tempCount);
@@ -159,7 +156,7 @@ client.on("messageCreate",async (message)=>{
         }
         else if(cmdName.toLowerCase() === "ch"){
             if(args.length != 2){
-                message.channel.send(">>> Please use the \"ch\" in the following format: !!ch (Name of crosshair) (Valorant code of crosshair) (picture of crosshair)");
+                message.channel.send(dedent(">>> Please use the \"ch\" in the following format: !!ch (Name of crosshair) (Valorant code of crosshair) (picture of crosshair)"));
             }
             else{
                 const att = message.attachments.first();
@@ -172,26 +169,41 @@ client.on("messageCreate",async (message)=>{
                 await new crosshairs(ch).save();
             }
         }
+        else if(cmdName.toLowerCase() === "chf"){
+            const options = {projection: {_id:0, user:0, _v:0 }};
+            let resultCursor = crosshairs.find({user: args[0]}, options);
+            if((await crosshairs.count({user: args[0]}))===0)
+                message.channel.send("No crosshairs matching that user name.");
+            else{
+                message.channel.send(`Showing Cross hairs for ${args[0]}`);
+                (await resultCursor).forEach(function(result) {
+                    message.channel.send(dedent(`>>> Name of cursor: ${result.name}
+                    Exported code: ${result.code}
+                    `))
+                    message.channel.send(result.imageURL);
+                })
+            }
+        }
     }
     else{
         //butter count checker
         let messagez = new Array();
         messagez = message.content.split(/\s+/);
         let endLen=messagez.length;
+        let butter = false;
         for(let position in messagez){
             if(messagez[position].toLowerCase()=="butter"){
+                console.log(position);
                 addToCount(messagez);
-                if(position==(endLen-1)){
-                    var Count= fs.readFileSync('buttercount','utf8');
-                    message.channel.send(">>> Butter has been sent "+ Count +" times.");
-                }
+                butter = true;
             }
             else if(messagez[position].includes("🧈"||messagez[position]=="🧈")){
                 addToCount(messagez);
-                if(position==(endLen-1)){
-                    var Count= fs.readFileSync('buttercount','utf8');
-                    message.channel.send(">>> Butter has been sent "+ Count +" times.");
-                }
+                butter = true;
+            }
+            if(position==(endLen-1) && butter === true){
+                let Count= fs.readFileSync('buttercount','utf8');
+                message.channel.send("Butter has been sent "+ Count +" times.");
             }
         }
     }
