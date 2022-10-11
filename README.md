@@ -13,4 +13,4 @@ check: Displays player name, level, current rank and current rr of a player. For
 
 ch: Add a cross hair to the database. Format: !!ch (Name of crosshair) (Valorant code of crosshair) (picture of crosshair)
 
-chf: Finds crosshair based on the username the user inputs. Format: !
+chf: Finds crosshair based on the username the user inputs. CASE SENSITIVE. Format: !!chf (username)
